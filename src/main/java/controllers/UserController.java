@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import repositories.UserRepository;
 
 import java.io.IOException;
@@ -13,7 +14,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @RestController
@@ -22,7 +22,7 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    private static String UPLOAD_FOLDER = "src/main/resources/img/";
+    private static String UPLOAD_FOLDER = "src/main/resources/static/img/";
 
     @PostMapping (value = "/register", produces = "application/json")
     public ResponseEntity<User> register(@RequestBody User user){
@@ -31,17 +31,17 @@ public class UserController {
     }
 
     @PostMapping (value = "/users/upload")
-    public ResponseEntity uploadImage(@RequestParam("file")MultipartFile file){
+    public ResponseEntity uploadImage(@RequestParam("file")MultipartFile file) throws IOException {
      //   String filename = file.getOriginalFilename();
-        byte[] filename = new byte[0];
+        byte[] bites = file.getBytes();
         try {
             Path path = Paths.get(UPLOAD_FOLDER + file.getOriginalFilename());
-            Files.write(path, filename);
+            Files.write(path, bites);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return new ResponseEntity(filename, HttpStatus.OK);
+        return new ResponseEntity("upload success", HttpStatus.OK);
     }
 
     @GetMapping(value = "/users", produces = "application/json")
