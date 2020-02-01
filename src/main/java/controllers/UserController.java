@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 @RestController
 public class UserController {
@@ -30,9 +31,28 @@ public class UserController {
         return new ResponseEntity("User register sucessfully!", HttpStatus.OK);
     }
 
+    @PostMapping (value = "/login", produces = "application/json")
+    public ResponseEntity<User> login(@RequestBody User user) {
+        if (user.getEmail() == null) {
+            return  new ResponseEntity("You need to insert email", HttpStatus.BAD_REQUEST);
+        } else if (user.getPassword() == null) {
+            return  new ResponseEntity("You need to insert password", HttpStatus.BAD_REQUEST);
+        }
+
+        List<User> showAllUsers = (List<User>) userRepository.findAll();
+
+        for(int i = 0; i <= showAllUsers.size(); i++){
+            if (showAllUsers.get(i).getEmail().contains(user.getEmail()) && showAllUsers.get(i).getPassword().contains(user.getPassword())) {
+                return new ResponseEntity("Login sucessfull!", HttpStatus.OK);
+            } else {
+                return new ResponseEntity("E-mail or Password are incorrect!", HttpStatus.BAD_REQUEST);
+            }
+        }
+        return  new ResponseEntity("", HttpStatus.OK);
+    }
+
     @PostMapping (value = "/users/upload")
     public ResponseEntity uploadImage(@RequestParam("file")MultipartFile file) throws IOException {
-     //   String filename = file.getOriginalFilename();
         byte[] bites = file.getBytes();
         try {
             Path path = Paths.get(UPLOAD_FOLDER + file.getOriginalFilename());
